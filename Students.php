@@ -107,7 +107,7 @@ $user_data = check_login($con);
                     <div class="card">
                         <div class="card-header">
                             <h2>Available Students</h2>
-                            <button><a href="#">Add Student</a></button>
+                            <a href="Add-Student.php">Add Student</a>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -138,6 +138,8 @@ $user_data = check_login($con);
             </div>
         </main>
     </div>
+
+   
 </body>
 
 </html>
