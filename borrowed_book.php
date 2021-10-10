@@ -39,7 +39,7 @@ $user_data = check_login($con);
                         <a href="Students.php"><i class="fa fa-users fa-lg"></i> <i>Manage Students</i> </a>
                     </li>
                     <li>
-                        <a href="borrowed_book.php"><i class="fa fa-drivers-license-o fa-lg"></i> <i>Borrowed Books</i> </a>
+                        <a href="Borrowed_book.php"><i class="fa fa-drivers-license-o fa-lg"></i> <i>Borrowed Books</i> </a>
                     </li>
                     <li>
                         <a href="profile.php"><i class="fa fa-cog fa-lg"></i><i>Settings</i> </a>
@@ -128,62 +128,65 @@ $user_data = check_login($con);
                         </div>
                     </div>
                 </div>
-            <div class="recent-grid">
+                <div class="recent-grid">
                 <div class="manage-books">
                     <div class="card">
                         <div class="card-header">
-                            <h2>Books</h2>
+                            <h2>Returned and Borrowed Books</h2>
                             <a href="Add_Book.php">Add Book</a>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table width='100%' class="table  table-light table-striped">
+                                <table width='100% ' class="table  table-light table-striped">
                                     <thead>
                                         <tr>
-                                        <td>ISBN</td>
+                                            <td>ISBN</td>
                                             <td>TITLE</td>
-                                            <td>Author</td>
-                                            <td>PUBLISHER</td>
-                                            <td>EDITION</td>
-                                            <td>SUBJECT</td>
-                                            <td>QUANTITY</td>
-                                            <td>AVAILABLE</td>
-                                            <td>ACTIONS</td>
+                                            <td>Registration No</td>
+                                            <td>Name</td>
+                                            <td>Borrowed Date</td>
+                                            <td>Returned Date</td>
+                                            <td>Stutus</td>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    <?php
-                                        
-                                        $sql = "SELECT * FROM book JOIN subject ON book.sub_ID= subject.Subject_ID";
-                                        $result = mysqli_query($con, $sql);
-                                        if (mysqli_num_rows($result)>0) {
+                                        <?php
+                                            $sql = "SELECT * FROM book JOIN issued_book_details ON book.ISBN= issued_book_details.Book_ID 
+                                                    JOIN student ON student.Reg_No = issued_book_details.Student_ID";
+                                                    $result = mysqli_query($con, $sql);
+
+                                            if (mysqli_num_rows($result) > 0) {
+                                            // output data of each row
                                             
-                                            while ($row = mysqli_fetch_assoc($result)) {
-                                                $ids=$row['ISBN'];
-                                                ?>
-                                                <tr><?php echo "
-                                                        <td>" . $row["ISBN"]. "</td>
-                                                        <td>" . $row["Title"] . "</td>
-                                                        <td>" . $row["Author"] ."</td>
-                                                        <td>" . $row["Publisher"] . "</td>
-                                                        <td>" . $row["Edition"] . "</td>
-                                                        <td>" . $row["Subject_Name"]. "</td>
-                                                        <td>" . $row["Qty"]. "</td> 
-                                                        <td>" . $row["Available"]. "</td> 
-                                                        <td>" . "<a href='delete_book.php?book=$ids' class = 'btn btn-danger mr-2'>Delete</a>". 
-                                                                
-                                                                "<a href='update_book.php?book=$ids'  class = 'btn btn-warning'>Edit</a>".
-                                                                
-                                                        "</td>" .
-                                                "</tr>"; 
-                                                }
-                                                echo "</table>";
-                                                } else { echo "0 results"; }
+                                            while($row = mysqli_fetch_assoc($result)) {
+                                                $id=$row["ISBN"];
+                                        ?>
+                                            <tr> 
+                                                    <td><?php echo $row["ISBN"]; ?></td>
+                                                    <td><?php echo $row["Title"] ; ?></td>
+                                                    <td><?php echo $row["Reg_No"] ; ?></td>
+                                                    <td><?php echo $row["Last_Name"] ."  ". $row["First_Name"] ; ?></td>
+                                                    <td><?php echo $row["Issued_Date"] ; ?></td>
+                                                    <td><?php echo $row["Returned_Date"] ; ?></td>
+
+                                                    <td><?php
+                                                        if ($row['Returned_Stutus']==='Borrowed') {
+                                                            echo "<a href='rtnbk.php?book=$id' class = 'btn btn-primary'>" . $row['Returned_Stutus'] . "</a>";
+                                                        }else {
+                                                            echo "<button href='rtnbk.php' disabled = 'disabled' class = 'btn btn-primary'>" . $row['Returned_Stutus'] . "</button>";
+                                                        }
+                                                    ?></td>       
+                                            </tr>
+                                            <?php   
+                                            }
+                                            } else {
+                                                echo "0 results"; 
+                                            }
                                                 $con->close();
                                             ?>
-                                          
                                     </tbody>
                                 </table>
+                                </form>
                             </div>
                         </div>
                     </div>

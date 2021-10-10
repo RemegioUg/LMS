@@ -5,56 +5,72 @@ include("connection.php");
 include("functions.php");
 $user_data = check_login($con);
 
-if(isset($_POST["reg_user"])){
+$ISBN = $ISBN_err = $qty = $qty_err = $error = "";
+if(isset($_POST['submit'])){
+    // Escape user inputs for security
+    $input_ISBN = mysqli_real_escape_string($con, $_REQUEST['ISBN']);
+    $title = mysqli_real_escape_string($con, $_REQUEST['Title']);
+    $author = mysqli_real_escape_string($con, $_REQUEST['Author']);
+    $publisher = mysqli_real_escape_string($con, $_REQUEST['Publisher']);
+    $edition = mysqli_real_escape_string($con, $_REQUEST['Edition']);
+    $description = mysqli_real_escape_string($con, $_REQUEST['Description']);
+    $input_qty = mysqli_real_escape_string($con, $_REQUEST['Qty']);
+    $sub = mysqli_real_escape_string($con, $_REQUEST['item']);
     
-    $Reg_No = mysqli_real_escape_string($con, $_POST['Reg_No']);
-    $lastName = mysqli_real_escape_string($con, $_POST['lastname']);
-    $firstName = mysqli_real_escape_string($con, $_POST['firstname']);
-    $tel_No = mysqli_real_escape_string($con, $_POST['tel_No']);
-    $course = mysqli_real_escape_string($con, $_POST['course']);
-    $year = mysqli_real_escape_string($con, $_POST['year']);
-    $semester = mysqli_real_escape_string($con, $_POST['semester']);
-    $faculty = mysqli_real_escape_string($con, $_POST['faculty']);
-    $password = mysqli_real_escape_string($con, $_POST['password_1']);
-    $confirm = mysqli_real_escape_string($con, $_POST['password_2']);
+    // Validate ISBN
+    
+    if(empty($input_ISBN)){
+        $ISBN_err = "Please enter the ISBN.";     
+    } elseif(!ctype_digit($input_ISBN)){
+        $ISBN_err = "Please enter a positive integer value of ISBN."; 
+    } else{
+        $ISBN = $input_ISBN;
+    }
 
-    if ($password != $confirm) {
-        echo "Password missmatch!!!";
-    }else {
-        $sql = "SELECT * FROM student WHERE Reg_No = '$Reg_No'";
-        $result = mysqli_query($con, $sql);
-        $user = mysqli_fetch_assoc($result);
+    //Validate Qty
+    if(empty($input_qty)){
+        $qty_err = "Please enter the Quantity.";    
+    } elseif(!ctype_digit($input_qty)){
+        $qty_err = "Please enter a positive integer value of Quantity.";
+    } else{
+        $qty = $input_qty;
+    }
+
+    if (empty($qty_err) && empty($ISBN_err)) {
+            // Attempt insert query execution
+        $sql = "INSERT INTO book (ISBN, Title, Author, Publisher, Edition, Description, Qty, Available, Sub_ID) 
+        VALUES ('$ISBN', '$title', '$author', '$publisher', '$edition', '$description', '$qty', '$qty', $sub)";
         
-        if ($user) {
-            echo "The student exists.";
-        }else {
-            $sqlr = "INSERT INTO student (Reg_No, Last_Name, First_Name, Tel_No, Course, Year, Semester, Faculty, Password)
-                    VALUES('$Reg_No', '$lastName', '$firstName', '$tel_No','$course', '$year', '$semester', '$faculty', '$password')";
-            $results = mysqli_query($con, $sqlr);
-
-            if (!$results) {
-                echo "Registration Failed!!!";
-            }else {
-                echo "Registration successively.";
-            }
+        if(mysqli_query($con, $sql)){
+            echo "Records added successfully.";
+        } else{
+            echo "ERROR: Could not able to execute. ";
         }
+        
+
+    } else {
+        $error = "Invalid inputs!!";
     }
     
+     
 }
-?>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="./Resources/code-base2.png">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-    <title>Library Management System</title>
-    <link rel="stylesheet" href="./bootstrap-4.0.0-dist/css/bootstrap.min.css">
-    <script src="./bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href='./font-awesome-4.7.0/font-awesome-4.7.0/css/font-awesome.min.css'> </head>
-<style>
+
+?>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <link rel="icon" type="image/png" href="./Resources/code-base2.png">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+        <title>Library Management System</title>
+        <link rel="stylesheet" href="./bootstrap-4.0.0-dist/css/bootstrap-grid.min.css">
+        <script src="./bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href='./font-awesome-4.7.0/font-awesome-4.7.0/css/font-awesome.min.css'> </head>
+    
+    <style>
      :root {
         --main-color: #DD2F6E;
         --color-dark: #1D2231;
@@ -502,53 +518,53 @@ if(isset($_POST["reg_user"])){
     }
 </style>
 
-<body>
-    <input type="checkbox" id="nav-toggle">
-    <div class="sidebar">
-        <div class="sidebar-brand">
-            <h2>Library Management System</h2>
-        </div>
-        <div class="sidebar-menu">
-            <ul>
-                <li>
-                    <a href="" class="active"><i class="fa fa-igloo"></i> <i>Dashboard</i> </a>
-                </li>
-                <li>
-                    <a href="Admin.php"><i class="fa fa-book fa-lg"></i> <i>Manage Books</i> </a>
-                </li>
-                <li>
-                    <a href="Students.php"><i class="fa fa-users fa-lg"></i> <i>Manage Students</i> </a>
-                </li>
-                <li>
-                    <a href="Borrowed_book.php"><i class="fa fa-drivers-license-o fa-lg"></i> <i>Borrowed Books</i> </a>
-                </li>
-                <li>
-                    <a href="profile.php"><i class="fa fa-cog fa-lg"></i><i>Settings</i> </a>
-                </li>
-                <li>
-                    <a href="logout.php"><i style="color: red;" class="fa fa-power-off fa-lg"></i><i>Log Out</i> </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div class="main-content">
-        <header>
-            <h2>
-                <label for="nav-toggle"><i class="fa fa-bars"></i></label> Dashboard
-            </h2>
-            <div class="search-wrapper">
-                <i class="fa fa-search"></i>
-                <input type="search" placeholder="search here">
+    <body>
+        <input type="checkbox" id="nav-toggle">
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <h2>Library Management System</h2>
             </div>
-            <div class="user-wrapper">
-                <!-- <img src="Resources/code-base2.png" width="30px" height="40px" alt=""> -->
-                <h4>Group-3</h4>
-                <small>Admin</small>
+            <div class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="" class="active"><i class="fa fa-igloo"></i> <i>Dashboard</i> </a>
+                    </li>
+                    <li>
+                        <a href="Admin.php"><i class="fa fa-book fa-lg"></i> <i>Manage Books</i> </a>
+                    </li>
+                    <li>
+                        <a href="Students.php"><i class="fa fa-users fa-lg"></i> <i>Manage Students</i> </a>
+                    </li>
+                    <li>
+                        <a href="borrowed_book.php"><i class="fa fa-drivers-license-o fa-lg"></i> <i>Borrowed Books</i> </a>
+                    </li>
+                    <li>
+                        <a href="profile.php"><i class="fa fa-cog fa-lg"></i><i>Settings</i> </a>
+                    </li>
+                    <li>
+                        <a href="logout.php"><i style="color: red;" class="fa fa-power-off fa-lg"></i><i>Log Out</i> </a>
+                    </li>
+                </ul>
             </div>
-        </header>
-        <main>
-            <div class="cards">
-            <div class="card-single">
+        </div>
+        <div class="main-content">
+            <header>
+                <h2>
+                    <label for="nav-toggle"><i class="fa fa-bars"></i></label> Dashboard
+                </h2>
+                <div class="search-wrapper">
+                    <i class="fa fa-search"></i>
+                    <input type="search" placeholder="search here">
+                </div>
+                <div class="user-wrapper">
+                    <!-- <img src="Resources/code-base2.png" width="30px" height="40px" alt=""> -->
+                    <h4>Group-3</h4>
+                    <small>Admin</small>
+                </div>
+            </header>
+            <main>
+                <div class="cards">
+                <div class="card-single">
                         <div>
                             <h1>
                                 <?php
@@ -578,86 +594,103 @@ if(isset($_POST["reg_user"])){
                             <i class="fa fa-book"></i>
                         </div>
                     </div>
-                <div class="card-single">
-                    <div>
-                        <h1>50</h1>
-                        <span>Borrowed Books </span>
-                    </div>
-                    <div>
-                        <i class="fa fa-drivers-license-o"></i>
-                    </div>
-                </div>
-                <div class="card-single">
-                    <div>
-                        <h1>50</h1>
-                        <span>Returned Books </span>
-                    </div>
-                    <div>
-                        <i class="fa fa-id-card"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="recent-grid">
-                <div class="manage-books">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2><a href="Students.php">Back</a></h2>
-                                
-
+                    <div class="card-single">
+                        <div>
+                            <h1>
+                                <?php
+                                   $bsql = "SELECT * FROM issued_book_details WHERE Returned_Stutus = 'Borrowed'";
+                                   $bresult= mysqli_query($con, $bsql);
+                                   echo mysqli_num_rows($bresult);
+                                ?>
+                            </h1>
+                            <span>Borrowed Books </span>
                         </div>
-                        <div class="form-body">
-                        <form method="post" action="">
-                                    <div class="input-group">
-                                        <label>Registration No:</label>
-                                        <input type="text" name="Reg_No" required >
-                                    </div>
-                                    <div class="input-group">
-                                        <label>Last Name:</label>
-                                        <input type="text" name="lastname" required >
-                                    </div>
-                                    <div class="input-group">
-                                        <label>First Name:</label>
-                                        <input type="text" name="firstname" required >
-                                    </div>
-                                    <div class="input-group">
-                                        <label>Email:</label>
-                                        <input type="email" name="email" required  > 
-                                    </div>
-                                    <div class="input-group">
-                                        <label>Course:</label>
-                                        <input type="text" name="course" required >
-                                    </div>
-                                    <div class="input-group">
-                                        <label>Year:</label>
-                                        <input type="text" name="year" required >
-                                    </div>
-                                    <div class="input-group">
-                                        <label>Semester:</label>
-                                        <input type="text" name="semester" required >
-                                    </div>
-                                    <div class="input-group">
-                                        <label>Faculty:</label>
-                                        <input type="text" name="faculty" required >
-                                    </div>
-                                    <div class="input-group">
-                                        <label style="display: inline;">Password:</label>
-                                        <input type="password" name="password_1" style="display: inline;" required > 
-                                    </div>
-                                    <div class="input-group">
-                                        <label style="display: inline;">Confirm password:</label>
-                                        <input type="password" name="password_2"  style="display: inline;" required> 
-                                    </div>
-                                    <div class="input-group">
-                                        <button type="submit" class="btn" name="reg_user" >Register</button>
-                                        </div>
+                        <div>
+                            <i class="fa fa-drivers-license-o"></i>
+                        </div>
+                    </div>
+                    <div class="card-single">
+                        <div>
+                            <h1>
+                                <?php
+                                   $rsql = "SELECT * FROM issued_book_details WHERE Returned_Stutus = 'Returned'";
+                                   $rresult= mysqli_query($con, $rsql);
+                                   echo mysqli_num_rows($rresult);
+                                ?>
+                            </h1>
+                            <span>Returned Books </span>
+                        </div>
+                        <div>
+                            <i class="fa fa-id-card"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="recent-grid">
+                    <div class="manage-books">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2><a href="Admin.php">Back</a></h2>
+                              
+                            </div>
+                            <div class="form-body">
+                            <form action="Add_book.php" method="post">
+                                <div class="input-group">
+                                    <span><?php echo $error; ?></span>
+                                    <label for="ISBN">ISBN:</label>
+                                    <input type="text" name="ISBN" value="<?php echo $ISBN_err?>" id="ISBN" required >
+                                </div>
+                                <div class="input-group">
+                                    <label for="Title">Title:</label>
+                                    <input type="text" name="Title" id="Title" required >
+                                </div>
+                                <div class="input-group">
+                                    <label for="Author">Author:</label>
+                                    <input type="text" name="Author" id="Author" required >
+                                </div>
+                                <div class="input-group">
+                                    <label for="Publisher">Publisher:</label>
+                                    <input type="text" name="Publisher" id="Publisher">
+                                </div>
+                                <div class="input-group">
+                                    <label for="Edition">Edition:</label>
+                                    <input type="text" name="Edition" id="Edition">
+                                </div>
+                                <div class="input-group">
+                                    <label for="Description">Description:</label>
+                                    <input type="text" name="Description" id="Description">
+                                </div>
+                                <div class="input-group">
+                                    <label for="Qty">Quantity:</label>
+                                    <input type="text" name="Qty" value="<?php echo $qty_err;?>" id="Qty" required>
+                                </div>
+ 
+                                <div class="input-group">  <label for = "subjectName" >Select Subject</label>
+                                <select name="item" id="item">
+                                        <?php 
+                                            $sqlt = "SELECT * FROM subject";
+                                            $resutt = mysqli_query($con, $sqlt);
+                                            
+                                            if (mysqli_num_rows($resutt)>0) {
+                                                while($option = mysqli_fetch_assoc($resutt)){
+                                                    $id = $option['Subject_ID'];
+                                                    echo "<option value='$id'>".$option['Subject_Name']."</option>";
+                                                }
+                                            }
+                                        ?>
+                                </select>
+                                </div>
+                                            
+                                <button type= "submit" name= "submit"><span class="btn">Add Book</span></button>
                                 </form>
-                            
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+        </div>
         </main>
-    </div>
-</body>
+        </div>
 
-</html>
+
+    </body>
+
+    </html>

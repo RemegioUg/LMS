@@ -140,18 +140,34 @@ if($_SERVER['REQUEST_METHOD']=="POST")
                 grid-template-columns: repeat(1, 1fr);
             }
         }
+        .logins{
+            width:40%;
+            margin-top:2rem;
+            
+        }
+        
+       hr{
+        border: 1px solid gray;
+  border-radius: 5px;
+  width:100%
+       }
+   
     </style>
 </head>
 
 <body>
+ 
     <div class="body">
+     
         <div class="login">
             <div class="header">
                 <span>Libray Management System</span>
+                <hr>
+                <h5 style="font-size:1.5rem padding:2px;">Admin Login</h5>
 
             </div>
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-                <div><input type="text" placeholder="user name" required name="user_name"></div>
+                <div><input type="text" placeholder="user name" autocomplete="off" required name="user_name"></div>
                 <div><input type="password" placeholder="password" required name="password"></div>
 
                 <span> <button class="btn btn-primary text-white">Login </button></span>
